@@ -68,3 +68,4 @@ example/dev-bundle
 build
 
 pnpm-lock.yaml
+**/.DS_Store

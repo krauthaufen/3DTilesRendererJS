@@ -62,6 +62,8 @@
     "build-lib": "vite build --config ./vite.lib-config.js",
     "lint": "eslint \"src/**/*.{js,jsx,ts}\" \"test/**/*.{js,ts,tsx,jsx}\" \"example/**/*.{js,jsx}\" && tsc -p tsconfig.json --noEmit",
     "test": "tsc -p tsconfig.test.json && jest",
+    "build:esbundle": "node scripts/esbuild-bundle.js",
+    "build:esbundle:external-three": "EXTERNAL_THREE=true node scripts/esbuild-bundle.js",
     "prepublishOnly": "npm run build-lib"
   },
   "repository": {
