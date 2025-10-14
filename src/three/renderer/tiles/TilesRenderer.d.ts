@@ -3,6 +3,12 @@ import { Tile, TilesRendererBase } from '3d-tiles-renderer/core';
 import { TilesGroup } from './TilesGroup.js';
 import { Ellipsoid } from '../math/Ellipsoid.js';
 
+export interface ArrayCameraDescriptor {
+	projectionMatrix: number[] | Float32Array | { elements: number[] };
+	matrixWorld?: number[] | Float32Array | { elements: number[] };
+	matrixWorldInverse?: number[] | Float32Array | { elements: number[] };
+}
+
 export interface TilesRendererEventMap {
 	'add-camera': { camera: Camera };
 	'delete-camera': { camera: Camera };
@@ -24,7 +30,7 @@ export interface TilesRendererEventMap {
 export class TilesRenderer<TEventMap extends TilesRendererEventMap = TilesRendererEventMap> extends TilesRendererBase implements EventDispatcher<TEventMap> {
 
 	ellipsoid: Ellipsoid;
-	cameras: Camera[];
+	cameras: Array<Camera | ArrayCameraDescriptor>;
 	autoDisableRendererCulling : boolean;
 	optimizeRaycast : boolean;
 
@@ -36,13 +42,13 @@ export class TilesRenderer<TEventMap extends TilesRendererEventMap = TilesRender
 	getOrientedBoundingBox( box : Box3, matrix : Matrix4 ) : boolean;
 	getBoundingSphere( sphere: Sphere ) : boolean;
 
-	hasCamera( camera : Camera ) : boolean;
-	setCamera( camera : Camera ) : boolean;
-	deleteCamera( camera : Camera ) : boolean;
+	hasCamera( camera : Camera | ArrayCameraDescriptor ) : boolean;
+	setCamera( camera : Camera | ArrayCameraDescriptor ) : boolean;
+	deleteCamera( camera : Camera | ArrayCameraDescriptor ) : boolean;
 
-	setResolution( camera : Camera, x : number, y : number ) : boolean;
-	setResolution( camera : Camera, resolution : Vector2 ) : boolean;
-	setResolutionFromRenderer( camera : Camera, renderer : WebGLRenderer ) : boolean;
+	setResolution( camera : Camera | ArrayCameraDescriptor, x : number, y : number ) : boolean;
+	setResolution( camera : Camera | ArrayCameraDescriptor, resolution : Vector2 ) : boolean;
+	setResolutionFromRenderer( camera : Camera | ArrayCameraDescriptor, renderer : WebGLRenderer ) : boolean;
 
 	forEachLoadedModel( callback : ( scene : Object3D, tile : Tile ) => void ) : void;
 

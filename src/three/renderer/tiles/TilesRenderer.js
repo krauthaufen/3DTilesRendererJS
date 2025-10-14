@@ -13,6 +13,7 @@ import {
 	EventDispatcher,
 	Group,
 } from 'three';
+import { isArrayCamera, getCameraMatrices } from '../../facade/ArrayCameraFacade.js';
 import { raycastTraverse, raycastTraverseFirstHit } from './raycastTraverse.js';
 import { TileBoundingVolume } from '../math/TileBoundingVolume.js';
 import { ExtendedFrustum } from '../math/ExtendedFrustum.js';
@@ -237,6 +238,7 @@ export class TilesRenderer extends TilesRendererBase {
 
 	hasCamera( camera ) {
 
+		// support array-based camera descriptors by using the descriptor object as key
 		return this.cameraMap.has( camera );
 
 	}
@@ -246,7 +248,6 @@ export class TilesRenderer extends TilesRendererBase {
 		const cameras = this.cameras;
 		const cameraMap = this.cameraMap;
 		if ( ! cameraMap.has( camera ) ) {
-
 			cameraMap.set( camera, new Vector2() );
 			cameras.push( camera );
 			this.dispatchEvent( { type: 'add-camera', camera } );
@@ -284,6 +285,7 @@ export class TilesRenderer extends TilesRendererBase {
 
 	setResolutionFromRenderer( camera, renderer ) {
 
+		// renderer is expected to behave like three's WebGLRenderer
 		renderer.getSize( tempVector2 );
 
 		return this.setResolution( camera, tempVector2.x, tempVector2.y );
@@ -438,10 +440,27 @@ export class TilesRenderer extends TilesRendererBase {
 			}
 
 			// Read the calculated projection matrix directly to support custom Camera implementations
-			const projection = camera.projectionMatrix.elements;
+			let projectionElements;
+			let cameraMatrixWorldInverse;
+			let cameraMatrixWorld;
+			if ( isArrayCamera( camera ) ) {
+
+				const mats = getCameraMatrices( camera );
+				projectionElements = mats.projectionMatrix ? mats.projectionMatrix.elements : null;
+				cameraMatrixWorldInverse = mats.matrixWorldInverse;
+				cameraMatrixWorld = mats.matrixWorld;
+
+			} else {
+
+				projectionElements = camera.projectionMatrix.elements;
+				cameraMatrixWorldInverse = camera.matrixWorldInverse;
+				cameraMatrixWorld = camera.matrixWorld;
+
+			}
 
 			// The last element of the projection matrix is 1 for orthographic, 0 for perspective
-			info.isOrthographic = projection[ 15 ] === 1;
+			const projection = projectionElements;
+			info.isOrthographic = projection && projection[ 15 ] === 1;
 
 			if ( info.isOrthographic ) {
 
@@ -455,20 +474,25 @@ export class TilesRenderer extends TilesRendererBase {
 
 				// See PerspectiveCamera.updateProjectionMatrix and Matrix4.makePerspective:
 				// the vertical FOV is used to populate matrix element 5.
-				info.sseDenominator = ( 2 / projection[ 5 ] ) / resolution.height;
+				if ( projection ) info.sseDenominator = ( 2 / projection[ 5 ] ) / resolution.height;
 
 			}
 
 			// get frustum in group root frame
 			tempMat.copy( group.matrixWorld );
-			tempMat.premultiply( camera.matrixWorldInverse );
-			tempMat.premultiply( camera.projectionMatrix );
+			if ( cameraMatrixWorldInverse ) tempMat.premultiply( cameraMatrixWorldInverse );
+			if ( projection ) tempMat.premultiply( new Matrix4().copy( { elements: projection } ) );
 
 			frustum.setFromProjectionMatrix( tempMat );
 
 			// get transform position in group root frame
+			// get transform position in group root frame
 			position.set( 0, 0, 0 );
-			position.applyMatrix4( camera.matrixWorld );
+			if ( cameraMatrixWorld ) {
+				position.applyMatrix4( cameraMatrixWorld );
+			} else if ( camera.matrixWorld ) {
+				position.applyMatrix4( camera.matrixWorld );
+			}
 			position.applyMatrix4( group.matrixWorldInverse );
 
 		}
