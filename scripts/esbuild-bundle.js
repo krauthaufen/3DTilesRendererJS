@@ -35,7 +35,7 @@ const aliasPlugin = {
       sourcemap: true,
       format: 'iife',
       globalName: 'TilesRendererBundle',
-      outfile: 'build/index.min.js',
+      outfile: 'build/tiles.min.js',
       plugins: [aliasPlugin],
     };
 
