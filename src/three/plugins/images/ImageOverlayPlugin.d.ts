@@ -20,7 +20,9 @@ export class ImageOverlay {
 
 	color: number | Color;
 	opacity: number;
-	frame?: Matrix4 | null;
+	frame: Matrix4 | null;
+	fetchOptions: any;
+	preprocessURL: ( url: string ) => string | null;
 
 }
 
@@ -30,11 +32,11 @@ export class XYZTilesOverlay extends ImageOverlay {
 		levels: number,
 		dimension: number,
 		url: string,
-		bounds?: [ number, number, number, number ],
 
 		color: number | Color,
 		opacity: number,
 		frame?: Matrix4 | null,
+		preprocessURL?: ( url: string ) => string | null;
 	} );
 
 }
@@ -72,10 +74,10 @@ export class WMSTilesOverlay extends ImageOverlay {
 		levels?: number,
 		transparent?: boolean,
 		contentBoundingBox?: [ number, number, number, number ],
-
 		color: number | Color,
 		opacity: number,
 		frame?: Matrix4 | null,
+		preprocessURL?: ( url: string ) => string | null;
 	} );
 
 }
@@ -93,6 +95,7 @@ export class WMTSTilesOverlay extends ImageOverlay {
 		color: number | Color,
 		opacity: number,
 		frame?: Matrix4 | null,
+		preprocessURL?: ( url: string ) => string | null;
 	} );
 
 }
@@ -105,6 +108,7 @@ export class TMSTilesOverlay extends ImageOverlay {
 		color: number | Color,
 		opacity: number,
 		frame?: Matrix4 | null,
+		preprocessURL?: ( url: string ) => string | null;
 	} );
 
 }
@@ -119,6 +123,7 @@ export class CesiumIonOverlay extends ImageOverlay {
 		color: number | Color,
 		opacity: number,
 		frame?: Matrix4 | null,
+		preprocessURL?: ( url: string ) => string | null;
 	} );
 
 }
@@ -134,6 +139,7 @@ export class GoogleMapsOverlay extends ImageOverlay {
 		color: number | Color,
 		opacity: number,
 		frame?: Matrix4 | null,
+		preprocessURL?: ( url: string ) => string | null;
 	} );
 
 }
